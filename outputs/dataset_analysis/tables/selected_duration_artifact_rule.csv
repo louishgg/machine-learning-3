@@ -1,0 +1,5 @@
+metric,value
+duration_artifact_minutes,240.000000
+duration_artifact_max_distance_from_start_km,20.000000
+duration_artifact_candidate_rows,142.000000
+duration_artifact_candidate_pct,0.008482

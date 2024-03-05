@@ -1,0 +1,146 @@
+{
+  "models": {
+    "random_forest": {
+      "columns": [
+        "ROW_ID",
+        "TRIP_GROUP",
+        "END_LONG",
+        "END_LAT",
+        "PRED_END_LONG",
+        "PRED_END_LAT"
+      ],
+      "kaggle": {
+        "kernel_run_id": null,
+        "kernel_run_type": "Batch"
+      },
+      "model_configuration": {
+        "bootstrap": true,
+        "max_depth": 100,
+        "max_features": 0.5,
+        "min_samples_leaf": 5,
+        "min_samples_split": 5,
+        "n_estimators": 700
+      },
+      "model_name": "Random Forest",
+      "model_slug": "random_forest",
+      "prediction_file": "validation_predictions_random_forest.parquet",
+      "preprocessed_dataset": {
+        "config": {
+          "seed": 42,
+          "target_format": "[LONG, LAT]",
+          "validation_size": 0.2,
+          "validation_train_seed": 42,
+          "validation_val_seed": 43
+        },
+        "schema_version": 1,
+        "validation_shape": [
+          334581,
+          541
+        ]
+      },
+      "row_count": 334581,
+      "schema_version": 1,
+      "source_notebook": "competition_random_forest.ipynb",
+      "target_order": [
+        "END_LONG",
+        "END_LAT"
+      ],
+      "validation_metrics": {
+        "drift_from_reviewed_km": 0.0,
+        "mean_haversine_km": 2.1194417721912764,
+        "reviewed_mean_haversine_km": 2.1194417721912764
+      }
+    },
+    "xgboost": {
+      "columns": [
+        "ROW_ID",
+        "TRIP_GROUP",
+        "END_LONG",
+        "END_LAT",
+        "PRED_END_LONG",
+        "PRED_END_LAT"
+      ],
+      "kaggle": {
+        "kernel_run_id": null,
+        "kernel_run_type": "Batch"
+      },
+      "model_configuration": {
+        "fixed_model_params": {
+          "booster": "gbtree",
+          "device": "cuda",
+          "eval_metric": "rmse",
+          "gamma": 0.0,
+          "grow_policy": "depthwise",
+          "max_bin": 256,
+          "n_jobs": -1,
+          "objective": "reg:squarederror",
+          "random_state": 42,
+          "sampling_method": "uniform",
+          "tree_method": "hist"
+        },
+        "target_model_params": {
+          "END_LAT": {
+            "colsample_bytree": 0.8,
+            "learning_rate": 0.05,
+            "max_depth": 14,
+            "min_child_weight": 25,
+            "reg_alpha": 0.0,
+            "reg_lambda": 2.5,
+            "subsample": 0.9
+          },
+          "END_LONG": {
+            "colsample_bytree": 0.8,
+            "learning_rate": 0.05,
+            "max_depth": 14,
+            "min_child_weight": 50,
+            "reg_alpha": 0.0,
+            "reg_lambda": 5.0,
+            "subsample": 0.9
+          }
+        },
+        "target_n_estimators": {
+          "END_LAT": 312,
+          "END_LONG": 766
+        }
+      },
+      "model_name": "XGBoost",
+      "model_slug": "xgboost",
+      "prediction_file": "validation_predictions_xgboost.parquet",
+      "preprocessed_dataset": {
+        "config": {
+          "seed": 42,
+          "target_format": "[LONG, LAT]",
+          "validation_size": 0.2,
+          "validation_train_seed": 42,
+          "validation_val_seed": 43
+        },
+        "schema_version": 1,
+        "validation_shape": [
+          334581,
+          541
+        ]
+      },
+      "row_count": 334581,
+      "schema_version": 1,
+      "source_notebook": "competition_xgboost.ipynb",
+      "target_order": [
+        "END_LONG",
+        "END_LAT"
+      ],
+      "validation_metrics": {
+        "drift_from_reviewed_km": 0.0,
+        "mean_haversine_km": 2.214959443795627,
+        "reviewed_mean_haversine_km": 2.214959443795627
+      }
+    }
+  },
+  "schema_version": 1,
+  "submissions": {
+    "random_forest": {
+      "file": "submission_random_forest.csv"
+    },
+    "xgboost": {
+      "file": "submission_xgboost.csv"
+    }
+  }
+}

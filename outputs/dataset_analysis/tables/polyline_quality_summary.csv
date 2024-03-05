@@ -1,0 +1,3 @@
+dataset,rows,valid_polyline_rows,invalid_or_too_short_rows,missing_data_true_rows
+train_full,1710670,1674160,36510,10
+competition_test,320,320,0,0

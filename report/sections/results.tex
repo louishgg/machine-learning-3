@@ -1,0 +1,59 @@
+\section{Results}
+
+\subsection{Random Forest is the strongest standalone model}
+
+\Cref{tab:model-comparison} summarizes every final approach.  The Random Forest--XGBoost blend achieves the best local public mean, 2.191~km.  Random Forest follows at 2.206~km and is the best standalone model; XGBoost is third at 2.276~km.  The same three systems lead on the private and all-trip means.
+
+\begin{table}[H]
+  \centering
+  \small
+  \setlength{\tabcolsep}{5pt}
+  \input{tables/model_comparison}
+  \vspace{0.35em}
+
+  \begin{minipage}{0.96\linewidth}
+    \footnotesize
+    $^{\dagger}$The ensemble validation value is the mean of five repeated grouped cross-fits; the blend adds no new base-model fit.
+    $^{\ddagger}$KNN validation and fit time use sampled promotion cohorts.  Other standalone validation values use the complete shared holdout.  Recorded fit times span CPU and GPU runs.
+  \end{minipage}
+  \caption[Final model comparison]{Final model comparison.  Distances are mean Haversine errors in kilometres; lower is better.  Public and private each contain 160 trips.}
+  \label{tab:model-comparison}
+\end{table}
+
+The public ranking in \cref{fig:public-score-ranking} makes the top-level separation clear: the ensemble is first, Random Forest is the strongest standalone model, and XGBoost is the next-best complementary system.  The ensemble's 15.1~m advantage over Random Forest is nevertheless small relative to their roughly 2.2~km mean errors, so the chart should be read as a ranking rather than evidence of a large practical gap.
+
+\begin{figure}[H]
+  \centering
+  \begin{minipage}{0.86\linewidth}
+    \centering
+    \includegraphics[width=\linewidth]{public_score_ranking.png}
+    \caption[Local public-score ranking]{Local public-score ranking on the 160 trips designated public.  Bars show mean Haversine error in kilometres; lower is better, and gold highlights the promoted ensemble.}
+    \label{fig:public-score-ranking}
+  \end{minipage}
+\end{figure}
+
+The nonlinear tree families clearly outperform the linear and neighbourhood baselines.  Decision Tree improves the public mean by about 293~m relative to Linear Regression, and bagging reduces it by a further 168~m.  Ridge and Linear Regression are almost tied, showing that regularization does not overcome the missing nonlinear interactions.  KNN ranks last: Manhattan distance in a 541-dimensional mixed spatial and one-hot space is not an effective global notion of route similarity at this scale.
+
+The lower ranks depend on the evaluated subset.  CatBoost is better than Decision Tree on validation, private mean, and all-trip mean, but Decision Tree is 15.8~m better on the public subset.  Ridge is 2.9~m better than Linear Regression publicly, while Linear Regression is slightly better on the private and all-trip means.  These small reversals should not be interpreted as stable superiority between close models.
+
+\subsection{Validation and local scoring tell a consistent top-level story}
+
+On the full standalone holdout, Random Forest scores 2.119~km, followed by XGBoost at 2.215~km, CatBoost at 2.297~km, Decision Tree at 2.328~km, Ridge at 2.888~km, and Linear Regression at 2.891~km.  KNN's 3.566~km value comes from its sampled promotion cohort and is not directly comparable.  The grouped cross-fitted ensemble reaches 2.113~km.  Thus validation and local competition scoring agree on the central conclusion: Random Forest is the strongest base model and XGBoost is the most useful complementary model.
+
+Random Forest's advantage comes with substantial CPU cost.  Its accepted validation refit took 25,546~s, compared with 130~s for GPU XGBoost, 473~s for GPU CatBoost, and 180~s for Decision Tree.  XGBoost therefore provides the best observed accuracy--runtime compromise in this workflow.  The approximately $196\times$ Random Forest/XGBoost ratio is operational rather than algorithmic, because the runs use different hardware.
+
+\subsection{The ensemble gain is consistent but small}
+
+The frozen blend assigns 81.399\% weight to Random Forest and 18.601\% to XGBoost.  It improves on Random Forest in all 25 held-out group folds and in all five repeat means (\cref{fig:ensemble-repeat-gain}).  The mean cross-fitted gain is 6.531~m, with a trip-group robust 95\% interval of [4.555, 8.506]~m.  These results pass the pre-defined promotion gate and support using the blend instead of Random Forest alone.
+
+\begin{figure}[H]
+  \centering
+  \begin{minipage}{0.84\linewidth}
+    \centering
+    \includegraphics[width=\linewidth]{ensemble_repeat_gain.png}
+    \caption[Mean ensemble gain over Random Forest by cross-fit repeat]{Mean ensemble gain over Random Forest in each repeated five-fold trip-group cross-fit.  Positive values favour the blend; the shaded band is the 95\% trip-group robust interval for the overall mean gain.}
+    \label{fig:ensemble-repeat-gain}
+  \end{minipage}
+\end{figure}
+
+On the local public subset, the ensemble improves the mean by 15.085~m (0.684\%) and ranks first at 2.191~km.  Across all 320 trips it improves the mean by 14.615~m.  The effect is not uniform: Random Forest has the slightly lower all-trip median (1.236 versus 1.257~km), while the ensemble has the lower 90th percentile (6.222 versus 6.243~km).  The blend is therefore an incremental correction that reduces some larger errors rather than a uniformly better prediction on every trip.

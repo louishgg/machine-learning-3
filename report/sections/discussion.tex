@@ -1,0 +1,29 @@
+\section{Discussion, limitations, and next steps}
+
+\subsection{Interpretation}
+
+The main performance gap is between nonlinear tree models and the linear or distance-based baselines.  Recent coordinates, time, taxi identity, and dispatch context interact in ways that a global affine model cannot capture.  Random Forest benefits most from the large training population: deep randomized trees represent route-specific interactions, while averaging controls the instability of a single Decision Tree.  CatBoost's native categorical handling improves over the single tree on validation and all-trip mean, but it does not surpass Random Forest or XGBoost.  This suggests that spatial and temporal interactions matter more than native category processing alone.
+
+The ensemble result is deliberately modest.  Random Forest supplies more than 81\% of the prediction, and XGBoost acts as a small corrective component.  Its gain is positive across every grouped fold, but 6.5~m is less than 0.4\% of the Random Forest validation error.  We therefore treat the blend as a justified final refinement, not as evidence that a more complicated stacking architecture is required.
+
+The comparison also exposes a practical trade-off.  Random Forest is most accurate but expensive on CPU; XGBoost reaches a public error only 70~m higher with a much shorter GPU refit.  If training time or iteration speed matters, XGBoost is the more attractive standalone compromise.  The recorded timings should not be generalized beyond this hardware configuration.
+
+\subsection{Limitations}
+
+Our validation design is consistent across model families, but it is not a blind temporal test.  Training covers July 2013 to July 2014, whereas the competition trips occur later in 2014.  A shuffled holdout does not reproduce that shift, and duplicated trip identifiers or repeated synthetic source trips can weaken row-level independence.  Grouped folds address this issue for the ensemble-weight comparison, but the parent models were still selected on the common holdout.
+
+Repeated tuning on one validation set introduces selection optimism, especially for the target-specific XGBoost and CatBoost searches.  The spatial and duration filters also use complete-trajectory information and therefore define performance only for the retained population.  These choices are reasonable for the competition pipeline, but the validation mean should not be interpreted as a fully unbiased estimate for future Porto trips.
+
+Matching the synthetic prefix-length distribution to the 320 supplied test inputs is not leakage: no test destination or public/private label enters preprocessing.  It does, however, specialize the model to the competition's observed truncation pattern.  Performance under a different deployment policy, such as systematically shorter prefixes, would require a separate evaluation.
+
+Finally, the released local solutions make it possible to compare all frozen submissions, but those labels should not be reused for further selection.  Public and private means contain only 160 trips each and can reverse close lower-model rankings.  We therefore base the ensemble decision on grouped validation and use local scores to describe the final competition outcome.
+
+\subsection{Priorities for improvement}
+
+Three extensions would strengthen the conclusions more than another broad search on the same holdout:
+
+\begin{enumerate}
+  \item \textbf{Grouped temporal validation.}  Train on earlier periods and reserve later trip groups for an outer assessment, with a separate inner split for feature, model, and ensemble selection.
+  \item \textbf{Paired error analysis and nested blending.}  Retain source-row identifiers, evaluate errors by prefix length and trip context, and generate parent predictions inside each outer fold before learning the ensemble weight.
+  \item \textbf{Standardized reproducibility and compute.}  Record one locked software environment and one hardware profile, then report training, prediction, model size, and memory use under comparable conditions.
+\end{enumerate}

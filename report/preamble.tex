@@ -1,0 +1,99 @@
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[english]{babel}
+\usepackage{lmodern}
+\usepackage[
+  a4paper,
+  left=1.9cm,
+  right=1.9cm,
+  top=2.35cm,
+  bottom=2.35cm,
+  headheight=15pt
+]{geometry}
+\usepackage{microtype}
+\usepackage{setspace}
+\usepackage{amsmath,amssymb,mathtools}
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{array}
+\usepackage{siunitx}
+\usepackage{caption}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage{xurl}
+\usepackage{fancyhdr}
+\usepackage{titlesec}
+\usepackage[numbers,sort&compress]{natbib}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,positioning}
+\usepackage[hidelinks]{hyperref}
+\usepackage[nameinlink,capitalise,noabbrev]{cleveref}
+
+\definecolor{ReportBlue}{HTML}{1D4ED8}
+\definecolor{ReportInk}{HTML}{1F2937}
+\definecolor{ReportGrey}{HTML}{6B7280}
+\definecolor{ReportLight}{HTML}{EFF6FF}
+
+\hypersetup{
+  pdftitle={Taxi Destination Prediction from Partial Trajectories},
+  pdfsubject={ELEN0062 Project 3 technical report},
+  pdfkeywords={taxi destination, machine learning, Haversine, ensemble, reproducibility},
+  colorlinks=true,
+  linkcolor=ReportBlue,
+  citecolor=ReportBlue,
+  urlcolor=ReportBlue
+}
+
+\graphicspath{{figures/}}
+\setstretch{1.06}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.55em}
+\setlist{nosep,leftmargin=1.6em}
+\setcounter{secnumdepth}{3}
+
+\titleformat{\section}
+  {\Large\bfseries\color{ReportInk}}
+  {\thesection}{0.7em}{}
+\titleformat{\subsection}
+  {\large\bfseries\color{ReportInk}}
+  {\thesubsection}{0.65em}{}
+\titleformat{\subsubsection}
+  {\normalsize\bfseries\color{ReportInk}}
+  {\thesubsubsection}{0.55em}{}
+
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small Taxi Destination Prediction}
+\fancyhead[R]{\small\nouppercase{\leftmark}}
+\fancyfoot[C]{\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+
+\captionsetup{
+  position=bottom,
+  font=small,
+  labelfont=bf,
+  textfont=it,
+  justification=justified,
+  singlelinecheck=false
+}
+
+\sisetup{
+  group-separator={,},
+  group-minimum-digits=4,
+  detect-all
+}
+
+\tikzset{
+  workflow/.style={
+    draw=ReportBlue,
+    rounded corners=2pt,
+    fill=ReportLight,
+    align=center,
+    minimum height=0.9cm,
+    text width=2.55cm,
+    font=\small
+  },
+  flowarrow/.style={-{Latex[length=2.2mm]},thick,draw=ReportGrey}
+}

@@ -1,0 +1,42 @@
+\section{Models}
+
+We compare seven standalone regressors and one prediction-level ensemble.  Linear Regression, Ridge, KNN, Decision Tree, and Random Forest use scikit-learn \citep{pedregosa2011scikit}; XGBoost and CatBoost fit one regressor per coordinate.  Except for CatBoost's native categorical representation, every standalone model uses the same 541 input features.
+
+\subsection{Linear and neighbourhood baselines}
+
+\paragraph{Linear Regression and Ridge.}
+Ordinary least squares provides a global additive baseline with an intercept and unconstrained coefficients.  Ridge Regression adds an $\ell_2$ penalty to stabilize the high-dimensional one-hot design \citep{hoerl1970ridge}; the selected value is $\alpha=316.23$.  Their similar results test whether the main limitation is coefficient variance or the absence of nonlinear spatial and categorical interactions.
+
+\paragraph{K-nearest neighbours.}
+KNN predicts a destination by averaging nearby training targets \citep{cover1967nearest}.  The accepted model uses brute-force Manhattan distance, $k=256$, and inverse-distance weighting on standardized features.  Because a full search is expensive at this scale, tuning and promotion use prefix-length-stratified samples; its validation value is therefore reported separately from the full-holdout evaluations.
+
+\subsection{Tree-based models}
+
+\paragraph{Decision Tree.}
+The single-tree model supplies a nonlinear control \citep{breiman1984cart}.  Its selected configuration has depth 20, minimum split size 150, and minimum leaf size 20.  These node-size constraints regularize a tree that would otherwise memorize sparse taxi and stand indicators, but one axis-aligned partition remains sensitive to sampling variation.
+
+\paragraph{Random Forest.}
+Random Forest reduces that variance by averaging randomized trees \citep{breiman2001random}.  We select 700 bootstrap trees, depth 100, 50\% feature subsampling, and minimum split and leaf sizes of 5.  A slightly better validation mean was available, but the retained configuration reduced the 90th-percentile error by 2.447~m and trained about twice as fast in the recorded search.  This model becomes our strongest standalone system.
+
+\paragraph{XGBoost.}
+XGBoost fits a regularized sequence of trees to coordinate residuals \citep{chen2016xgboost}.  Longitude and latitude use depth-14 GPU models with learning rate 0.05, 90\% row subsampling, and 80\% column subsampling.  Early-stopped validation searches select different regularization and round counts for the two targets; full-data calibration then uses 625 rounds for longitude and 836 for latitude.
+
+\paragraph{CatBoost.}
+CatBoost combines boosting with native treatment of high-cardinality categorical variables \citep{prokhorenkova2018catboost}.  Its two GPU regressors use depth-10 symmetric trees, learning rate 0.03, $\ell_2$ leaf penalty 12, and Bayesian bootstrap.  Full-data calibration selects 3,207 iterations for longitude and 9,778 for latitude.  This model tests whether native caller, stand, and taxi identities improve on one-hot encoding.
+
+\subsection{Random Forest--XGBoost ensemble}
+
+Random Forest is the most accurate standalone model, while XGBoost offers a different residual pattern and a lower all-trip 90th-percentile error.  We combine their frozen coordinate predictions with one convex weight shared by longitude and latitude:
+\begin{equation}
+  \widehat{\boldsymbol y}(w)
+  =w\widehat{\boldsymbol y}_{\mathrm{RF}}
+  +(1-w)\widehat{\boldsymbol y}_{\mathrm{XGB}}.
+  \label{eq:ensemble-blend}
+\end{equation}
+The final weight is
+\begin{equation}
+  \widehat{\boldsymbol y}
+  =0.8139921906\,\widehat{\boldsymbol y}_{\mathrm{RF}}
+  +0.1860078094\,\widehat{\boldsymbol y}_{\mathrm{XGB}}.
+\end{equation}
+Using one shared scalar keeps the ensemble deliberately low-capacity: XGBoost can correct part of the Random Forest error without introducing a coordinate-specific stacker that would be easier to overfit.

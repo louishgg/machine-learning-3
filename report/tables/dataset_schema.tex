@@ -1,0 +1,15 @@
+\begin{tabularx}{\linewidth}{@{}>{\ttfamily\raggedright\arraybackslash}p{2.5cm}>{\raggedright\arraybackslash}p{1.9cm}>{\raggedright\arraybackslash}p{2.8cm}X@{}}
+\toprule
+\multicolumn{1}{@{}l}{Field} & Type & Values / scope & Meaning \\
+\midrule
+TRIP\_ID & String & May repeat & Trip identifier. \\
+CALL\_TYPE & Character & A, B, or C & Dispatch mode: central call, taxi stand, or street hail. \\
+ORIGIN\_CALL & Integer & Type A; may be missing & Anonymized caller identifier when a central-call trip provides one. \\
+ORIGIN\_STAND & Integer & Type B; otherwise missing & Taxi-stand identifier for stand-based trips. \\
+TAXI\_ID & Integer & 442 taxis & Identifier of the taxi associated with the trip. \\
+TIMESTAMP & Integer & Unix seconds & Trip start time. \\
+DAY\_TYPE & Character & A, B, or C & Normal day, holiday, or day preceding a holiday, respectively. \\
+MISSING\_DATA & Boolean & True or False & Whether the recorded GPS stream contains missing samples. \\
+POLYLINE & List as string & Coordinate pairs & GPS samples stored as [LONGITUDE, LATITUDE] every 15 seconds; the final training point is the destination, whereas test rows contain only the observed prefix. \\
+\bottomrule
+\end{tabularx}

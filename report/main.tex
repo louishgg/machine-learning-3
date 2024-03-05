@@ -1,0 +1,70 @@
+\documentclass[11pt,a4paper]{article}
+
+\input{preamble}
+
+\begin{document}
+
+\hypersetup{pageanchor=false}
+
+\begin{titlepage}
+  \centering
+  \vspace*{1.2cm}
+  {\Large ELEN0062 -- Introduction to Machine Learning\par}
+  \vspace{0.55cm}
+  {\color{ReportBlue}\rule{0.88\textwidth}{1.2pt}\par}
+  \vspace{0.6cm}
+  {\Huge\bfseries Taxi Destination Prediction\par}
+  \vspace{0.35cm}
+  {\LARGE From Partial Trajectories to a Reproducible Ensemble\par}
+  \vspace{0.6cm}
+  {\color{ReportBlue}\rule{0.88\textwidth}{1.2pt}\par}
+  \vspace{0.75cm}
+  {\Large Project 3 -- Competition\par}
+  \vspace{0.3cm}
+  {\large Technical report\par}
+  \vspace{0.45cm}
+  {\Large\bfseries Louis Hogge\par}
+  \vspace{0.75cm}
+  \includegraphics[width=0.52\textwidth]{../outputs/dataset_analysis/plots/porto_gps_density.png}
+  \vfill
+  {\large 17 July 2026\par}
+  \vspace{0.7cm}
+\end{titlepage}
+
+\hypersetup{pageanchor=true}
+\pagenumbering{roman}
+
+\begin{abstract}
+\setlength{\parskip}{0.55em}
+\input{sections/abstract}
+\end{abstract}
+\clearpage
+
+\begingroup
+\small
+\setstretch{1}
+\setlength{\parskip}{0pt}
+\setcounter{tocdepth}{2}
+\tableofcontents
+\listoffigures
+\listoftables
+\markboth{Contents and lists}{}
+\endgroup
+\clearpage
+
+\pagenumbering{arabic}
+\input{sections/introduction}
+\input{sections/data_preprocessing}
+\input{sections/models}
+\input{sections/methodology}
+\input{sections/results}
+\input{sections/discussion}
+\input{sections/conclusion}
+
+\clearpage
+\phantomsection
+\addcontentsline{toc}{section}{References}
+\bibliographystyle{plainnat}
+\bibliography{references}
+
+\end{document}

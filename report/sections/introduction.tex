@@ -1,0 +1,22 @@
+\section{Introduction}
+
+Destination prediction from a partial vehicle trajectory is a conditional forecasting problem: the observed path shows where a journey has been, but the unobserved suffix may still contain turns, detours, or a long final leg.  Accurate predictions can support taxi dispatch, demand anticipation, and passenger matching.  We study this problem with the Porto taxi data from the ECML/PKDD trajectory challenge \citep{moreira2015taxi}.  The task is to predict the final latitude and longitude of 320 trips from cut-off initial trajectories and trip metadata.
+
+The competition metric is mean Haversine distance, so a useful model must control great-circle destination error rather than coordinate-wise error alone.  Our work addresses three questions:
+
+\begin{enumerate}
+  \item How should a variable-length partial trajectory be represented so that conventional regressors can predict a two-dimensional destination?
+  \item Which linear, neighbourhood-based, single-tree, bagged-tree, and boosted-tree methods perform best under a shared validation protocol?
+  \item Can a low-capacity blend improve the strongest standalone model without selecting its weight on the competition labels?
+\end{enumerate}
+
+Our final system has four main components:
+
+\begin{itemize}
+  \item one shared preprocessing pipeline for cleaning complete trajectories and constructing test-like partial prefixes;
+  \item fixed-width spatial, temporal, and categorical features used consistently across model families;
+  \item seven standalone regressors spanning simple baselines to GPU-accelerated boosting; and
+  \item a grouped cross-fitted Random Forest--XGBoost blend selected before local competition scoring.
+\end{itemize}
+
+We use the validation holdout for model selection.  After the competition labels became locally available, we also score the frozen submissions on the 160-row public subset, the complementary 160-row private subset, and all 320 trips.  These local scores describe the final submissions; they are not used to learn the ensemble weight.  The public mean is the primary competition-facing result, while validation, tail error, and runtime provide complementary evidence.

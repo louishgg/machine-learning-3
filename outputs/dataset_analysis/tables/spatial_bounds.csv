@@ -1,0 +1,4 @@
+BOUNDS,lon_min,lon_max,lat_min,lat_max
+broad_sanity,-8.85,-7.4,40.85,41.65
+porto_core,-8.75,-8.45,41.05,41.3
+test_prefix_envelope,-8.749766,-7.522072,41.042563,41.582351

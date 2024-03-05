@@ -1,0 +1,3 @@
+data/*.zip filter=lfs diff=lfs merge=lfs -text
+outputs/artifacts/xgboost/model_bundle_xgboost.joblib filter=lfs diff=lfs merge=lfs -text
+outputs/artifacts/catboost/model_bundle_catboost.joblib filter=lfs diff=lfs merge=lfs -text

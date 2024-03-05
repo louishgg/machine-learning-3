@@ -1,0 +1,56 @@
+\section{Experimental design}
+
+\subsection{Evaluation metric}
+
+For a prediction $(\hat\lambda_i,\hat\phi_i)$ and destination $(\lambda_i,\phi_i)$, we compute the Haversine distance
+\begin{align}
+  a_i &= \sin^2\!\left(\frac{\phi_i-\hat\phi_i}{2}\right)
+  +\cos(\hat\phi_i)\cos(\phi_i)
+   \sin^2\!\left(\frac{\lambda_i-\hat\lambda_i}{2}\right),\\
+  d_i &= 2R\,\operatorname{atan2}\!\left(\sqrt{a_i},\sqrt{1-a_i}\right),
+  \qquad R=6371\ \mathrm{km},\\
+  \mathcal L_{\mathrm{hav}}&=\frac{1}{n}\sum_{i=1}^{n}d_i.
+\end{align}
+Mean Haversine distance is the selection and competition metric.  Median and 90th-percentile distances are secondary diagnostics for the heavy error tail.  Most estimators optimize squared coordinate error internally, so all model decisions are made after recombining longitude and latitude and evaluating the geodesic metric.
+
+\subsection{Model selection and final fitting}
+
+All standalone models share the 80/20 synthetic-prefix holdout and the same feature definitions.  Linear Regression and Ridge use exhaustive finite grids; Decision Tree uses Optuna's tree-structured Parzen estimator \citep{akiba2019optuna}; Random Forest uses a reviewed finite grid; and KNN uses sampled search and promotion cohorts.  XGBoost and CatBoost use target-specific catalogues with early stopping, followed by a full-validation refit of the selected longitude/latitude pair.  Mean distance is primary, with tail error and runtime used to break practically negligible ties.
+
+After selection, we rebuild the feature transformations on all \num{1672901} retained trajectories, calibrate the final boosting iteration counts where required, fit the accepted configuration, and predict the 320 test prefixes.  The final synthetic matrix uses prefix-sampling seed 142 to create a deterministic stream distinct from the validation samples; stochastic estimator seeds remain 42 where applicable.
+
+\begin{figure}[H]
+  \centering
+  \begin{tikzpicture}[node distance=0.52cm and 0.52cm]
+    \node[workflow] (raw) {Complete training\\trajectories};
+    \node[workflow,right=of raw] (clean) {Clean and split\\raw trips};
+    \node[workflow,right=of clean] (prefix) {Generate test-like\\prefixes};
+    \node[workflow,right=of prefix] (features) {Fit shared\\feature pipeline};
+
+    \node[workflow,below=0.82cm of features] (compare) {Tune and compare\\on validation};
+    \node[workflow,left=of compare] (select) {Select parent\\models};
+    \node[workflow,left=of select] (refit) {Refit selected\\parent models};
+    \node[workflow,left=of refit] (submit) {Blend predictions\\and submit};
+
+    \draw[flowarrow] (raw) -- (clean);
+    \draw[flowarrow] (clean) -- (prefix);
+    \draw[flowarrow] (prefix) -- (features);
+    \draw[flowarrow] (features) -- (compare);
+    \draw[flowarrow] (compare) -- (select);
+    \draw[flowarrow] (select) -- (refit);
+    \draw[flowarrow] (refit) -- (submit);
+  \end{tikzpicture}
+  \caption[Shared training, selection, and final-fitting workflow]{Shared training, selection, and final-fitting workflow.  The competition labels do not enter model selection or ensemble-weight estimation.}
+\end{figure}
+
+\subsection{Grouped ensemble selection}
+
+The Random Forest and XGBoost validation predictions are aligned one-to-one with the same targets.  Synthetic sampling can draw the same source trajectory more than once, so we recover the source-trip group and use five repeats of five-fold \texttt{GroupKFold}.  In each fold, the weight in \cref{eq:ensemble-blend} is learned on four folds and evaluated on held-out trip groups.  This produces 25 out-of-fold comparisons with Random Forest.
+
+We promote the blend only if at least four of five repeat means are positive and the trip-group robust 95\% interval for the mean gain is strictly above zero.  After this gate passes, we estimate one deployable weight from all \num{334581} aligned validation rows and apply it to the already-finalized parent submissions.  The local public and private labels are used only after the weight is frozen.
+
+\subsection{Reported populations and reproducibility}
+
+Validation results measure performance on synthetic prefixes drawn from the training year.  Local competition results use the released solutions: 160 rows marked public, 160 complementary private rows, and all 320 rows together.  We rank models by the local public mean because it matches the competition-facing comparison, while the validation estimate remains the basis for model selection.  Runtime values describe the recorded workflow rather than a hardware-normalized benchmark: linear and scikit-learn tree models ran on CPU, XGBoost and CatBoost on GPU, and KNN on sampled cohorts.
+
+The workflow is reproducible from the shared builder \path{code/build_preprocessed_datasets.py}, the model notebooks, the cached preprocessing archives, and the selected-parameter artifacts.  Each notebook separates tuning, validation refit, and final fit so expensive stages can be rerun deliberately.  The report itself is regenerated without retraining by running \texttt{make} in \path{report/}; its asset script re-scores the saved submissions and rebuilds the figures and tables.

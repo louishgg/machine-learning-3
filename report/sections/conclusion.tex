@@ -1,0 +1,5 @@
+\section{Conclusion}
+
+We built a common pipeline that converts complete taxi trajectories into competition-like partial prefixes, engineers a fixed spatial and contextual representation, and compares seven regression families.  Random Forest is the strongest standalone model, with mean Haversine errors of 2.119~km on validation and 2.206~km on the local public subset.  XGBoost is less accurate but substantially faster in the recorded GPU workflow and contributes complementary errors.
+
+Our final 81.399\% Random Forest--18.601\% XGBoost blend achieves the best local public score, 2.191~km, and also ranks first on the private and all-trip means.  Its grouped cross-fitted gain averages 6.531~m and is positive in every fold, so the improvement is consistent but incremental.  The project therefore supports a simple conclusion: careful construction of test-like prefixes and a high-capacity Random Forest provide most of the performance, while a low-capacity blend offers a small final improvement.  A grouped temporal evaluation is the most important next step for measuring how well this result transfers beyond the competition split.

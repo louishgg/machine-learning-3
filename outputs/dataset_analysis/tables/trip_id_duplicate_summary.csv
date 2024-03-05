@@ -1,0 +1,3 @@
+dataset,rows,duplicate_trip_ids
+train_full,1710670,81
+competition_test,320,0

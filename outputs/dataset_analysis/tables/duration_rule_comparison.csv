@@ -1,0 +1,4 @@
+duration_threshold_minutes,long_duration_rows,long_and_max_distance_le_20km_rows,long_and_max_distance_le_20km_pct
+120,2257,1408,0.084102
+240,403,142,0.008482
+480,52,16,0.000956
